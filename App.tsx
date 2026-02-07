@@ -69,6 +69,23 @@ const App: React.FC = () => {
     }
   };
 
+  const handleExportPDF = () => {
+    // Dynamically set the document title to the source filename so the PDF save dialog uses it.
+    if (sourceDoc) {
+      const originalTitle = document.title;
+      // Remove extension for the title
+      const fileNameWithoutExt = sourceDoc.name.replace(/\.[^/.]+$/, "");
+      document.title = `Evaluation_${fileNameWithoutExt}`;
+      window.print();
+      // Restore the original title after the print dialog closes
+      setTimeout(() => {
+        document.title = originalTitle;
+      }, 100);
+    } else {
+      window.print();
+    }
+  };
+
   const renderDashboard = () => (
     <div className="max-w-5xl mx-auto px-4 mt-12 animate-fade-in pb-20">
       <header className="text-center mb-16">
@@ -164,7 +181,7 @@ const App: React.FC = () => {
                 Copy for Word
               </button>
               <button 
-                onClick={() => window.print()}
+                onClick={handleExportPDF}
                 className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-xl shadow-blue-500/20"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
