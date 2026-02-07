@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AnatomyGuru Eval | AI-Powered Medical Evaluation</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <!-- Safety shim for process.env used by some libraries in browser -->
+    <script>
+      window.process = { env: {} };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <style>
@@ -16,11 +20,6 @@
         }
         .brand-font {
             font-family: 'Playfair+Display', serif;
-        }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(226, 232, 240, 1);
         }
         .gradient-text {
             background: linear-gradient(135deg, #0f172a 0%, #2563eb 100%);
