@@ -8,54 +8,88 @@ interface FeedbackReportProps {
 
 const FeedbackReport: React.FC<FeedbackReportProps> = ({ report }) => {
   return (
-    <div className="max-w-4xl mx-auto my-8 bg-white shadow-2xl rounded-2xl overflow-hidden border border-slate-200">
+    <div className="max-w-4xl mx-auto my-12 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-3xl overflow-hidden border border-slate-100 report-container">
       {/* Header */}
-      <div className="p-8 bg-slate-900 text-white flex justify-between items-start">
-        <div>
-          <h1 className="brand-font text-3xl font-bold tracking-tight">ANATOMY GURU</h1>
-          <p className="italic text-slate-400 text-sm">Nothing Left Undissected!!</p>
-          <div className="mt-6 space-y-1">
-            <h2 className="text-xl font-semibold text-blue-400">{report.testTitle || 'Medical Evaluation'}</h2>
-            <p className="text-sm opacity-80">Date: {report.testDate || new Date().toLocaleDateString()}</p>
-          </div>
+      <div className="relative p-10 bg-slate-900 text-white">
+        <div className="absolute top-0 right-0 p-10 opacity-10">
+          <svg width="200" height="200" viewBox="0 0 200 200">
+             <circle cx="100" cy="100" r="80" stroke="white" strokeWidth="2" fill="none" />
+             <path d="M100 20 L100 180 M20 100 L180 100" stroke="white" strokeWidth="1" />
+          </svg>
         </div>
-        <div className="text-right">
-          <div className="bg-blue-600 px-4 py-2 rounded-lg inline-block shadow-lg">
-            <span className="text-xs uppercase tracking-widest font-bold block opacity-75">Score</span>
-            <span className="text-3xl font-bold">{report.totalScore}/{report.maxScore}</span>
+        
+        <div className="relative z-10 flex justify-between items-start">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="bg-red-600 text-[10px] font-black px-2 py-0.5 rounded tracking-[0.2em] uppercase">Official</span>
+            </div>
+            <h1 className="brand-font text-4xl font-black tracking-tight mb-1">ANATOMY GURU</h1>
+            <p className="italic text-slate-400 text-sm tracking-wide">Nothing Left Undissected!!</p>
+            
+            <div className="mt-10 pt-6 border-t border-white/10">
+              <h2 className="text-sm font-bold text-blue-400 uppercase tracking-widest mb-1">Examination Title</h2>
+              <p className="text-2xl font-semibold">{report.testTitle || 'Structured Medical Assessment'}</p>
+              <p className="text-xs text-slate-400 mt-2 font-mono uppercase">Reference Date: {report.testDate || new Date().toLocaleDateString()}</p>
+            </div>
           </div>
-          <div className="mt-4">
-            <p className="text-xs uppercase tracking-widest font-bold opacity-60">Student Name</p>
-            <p className="text-lg font-semibold">{report.studentName}</p>
+          
+          <div className="text-right flex flex-col items-end">
+            <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-1 rounded-2xl shadow-xl mb-6">
+              <div className="bg-slate-900 px-6 py-4 rounded-[calc(1rem-2px)] text-center min-w-[140px]">
+                <span className="text-[10px] uppercase tracking-[0.3em] font-black block text-blue-400 mb-1">Aggregated Score</span>
+                <span className="text-4xl font-black">
+                  {report.totalScore}<span className="text-slate-500 text-xl mx-0.5">/</span>{report.maxScore}
+                </span>
+                <div className="h-1 w-full bg-slate-800 mt-3 rounded-full overflow-hidden">
+                   <div 
+                    className="h-full bg-blue-500 rounded-full" 
+                    style={{ width: `${(report.totalScore / report.maxScore) * 100}%` }} 
+                   />
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-500 mb-1">Student Credentials</p>
+              <p className="text-xl font-bold border-b-2 border-red-500/50 pb-1">{report.studentName}</p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Table */}
-      <div className="p-8">
-        <div className="overflow-x-auto">
+      <div className="p-10">
+        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-6">Detailed Itemized Evaluation</h3>
+        <div className="overflow-hidden rounded-2xl border border-slate-100 mb-10">
           <table className="w-full text-sm text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 text-slate-600 uppercase text-xs font-bold border-b border-slate-200">
-                <th className="px-6 py-4 w-16">Q No</th>
-                <th className="px-6 py-4">Feedback</th>
-                <th className="px-6 py-4 text-right w-24">Marks</th>
+              <tr className="bg-slate-50 text-slate-500 uppercase text-[10px] font-black tracking-widest border-b border-slate-100">
+                <th className="px-8 py-5 w-24">Item #</th>
+                <th className="px-8 py-5">Evaluator Feedback & Improvement Strategy</th>
+                <th className="px-8 py-5 text-right w-32">Weightage</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-50">
               {report.questions.map((q, idx) => (
-                <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 font-bold text-slate-700">{q.qNo}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-start gap-2">
-                      <span className={`mt-1 h-2 w-2 rounded-full shrink-0 ${q.isCorrect ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                      <p className={`font-medium ${q.isCorrect ? 'text-emerald-700' : 'text-slate-700'}`}>
-                        {q.feedback}
-                      </p>
+                <tr key={idx} className="group hover:bg-slate-50/50 transition-colors">
+                  <td className="px-8 py-6 font-bold text-slate-400 group-hover:text-slate-900 transition-colors">{q.qNo}</td>
+                  <td className="px-8 py-6">
+                    <div className="flex items-start gap-4">
+                      <div className={`mt-1 h-3 w-3 rounded-full shrink-0 ${q.isCorrect ? 'bg-emerald-400 ring-4 ring-emerald-50' : 'bg-red-400 ring-4 ring-red-50'}`} />
+                      <div>
+                        <p className={`font-semibold leading-relaxed ${q.isCorrect ? 'text-emerald-800' : 'text-slate-800'}`}>
+                          {q.feedback}
+                        </p>
+                        {!q.isCorrect && (
+                          <span className="inline-block mt-2 text-[10px] uppercase font-black text-red-500 tracking-wider">Requires Revision</span>
+                        )}
+                      </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-right font-mono font-semibold text-slate-600">
-                    {q.marks}/{q.maxMarks}
+                  <td className="px-8 py-6 text-right">
+                    <div className="inline-block px-3 py-1 bg-slate-100 rounded-md font-mono font-bold text-slate-600">
+                      {q.marks}/{q.maxMarks}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -63,72 +97,101 @@ const FeedbackReport: React.FC<FeedbackReportProps> = ({ report }) => {
           </table>
         </div>
 
-        {/* Total Marks Row Mobile-style */}
-        <div className="flex justify-between items-center py-6 px-6 bg-slate-50 border-t-2 border-slate-200 mt-4 rounded-xl">
-          <span className="text-lg font-bold text-slate-800">Total Marks</span>
-          <span className="text-2xl font-black text-red-600">{report.totalScore}/{report.maxScore}</span>
-        </div>
-
-        {/* General Feedback Sections */}
-        <div className="mt-12 space-y-8">
-          <h2 className="text-2xl font-bold text-slate-800 border-b-2 border-red-100 pb-2">General Feedback</h2>
+        {/* Global Competency Metrics */}
+        <div className="mt-16">
+          <div className="flex items-center gap-4 mb-8">
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Global Competency Feedback</h2>
+            <div className="h-px flex-1 bg-slate-100"></div>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <section className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-              <h3 className="text-xs uppercase tracking-widest font-black text-red-600 mb-3">1) Overall Performance</h3>
-              <p className="text-slate-700 leading-relaxed font-medium">{report.generalFeedback.overallPerformance}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <section className="bg-slate-50/50 p-8 rounded-3xl border border-slate-100 hover:border-blue-100 transition-all">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                </div>
+                <h3 className="text-[10px] uppercase tracking-[0.3em] font-black text-slate-400">01. Overall Performance</h3>
+              </div>
+              <p className="text-slate-700 leading-relaxed font-medium text-lg italic">"{report.generalFeedback.overallPerformance}"</p>
             </section>
 
-            <section className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-              <h3 className="text-xs uppercase tracking-widest font-black text-red-600 mb-3">2) MCQs</h3>
+            <section className="bg-slate-50/50 p-8 rounded-3xl border border-slate-100 hover:border-blue-100 transition-all">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                </div>
+                <h3 className="text-[10px] uppercase tracking-[0.3em] font-black text-slate-400">02. MCQ Competency</h3>
+              </div>
               <p className="text-slate-700 leading-relaxed font-medium">{report.generalFeedback.mcqs}</p>
             </section>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <FeedbackList title="3) Content Accuracy" items={report.generalFeedback.contentAccuracy} />
-            <FeedbackList title="4) Completeness of Answers" items={report.generalFeedback.completeness} />
-            <FeedbackList title="5) Presentation & Diagrams" items={report.generalFeedback.presentation} />
-            <FeedbackList title="6) Investigations" items={report.generalFeedback.investigations} />
+            <FeedbackList title="03. Content Accuracy" items={report.generalFeedback.contentAccuracy} color="blue" />
+            <FeedbackList title="04. Scope & Completeness" items={report.generalFeedback.completeness} color="emerald" />
+            <FeedbackList title="05. Visual Presentation" items={report.generalFeedback.presentation} color="indigo" />
+            <FeedbackList title="06. Clinical Investigations" items={report.generalFeedback.investigations} color="rose" />
           </div>
 
-          <section className="bg-red-50 p-8 rounded-2xl border border-red-100 shadow-sm">
-            <h3 className="text-xs uppercase tracking-widest font-black text-red-600 mb-4 flex items-center gap-2">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"></path></svg>
-              What to do next (Action points)
+          <section className="mt-12 bg-slate-900 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-700">
+               <svg width="150" height="150" fill="white" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <h3 className="text-[10px] uppercase tracking-[0.3em] font-black text-blue-400 mb-6 flex items-center gap-3">
+              <span className="w-8 h-px bg-blue-400"></span>
+              Strategic Action Points
             </h3>
-            <ul className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {report.generalFeedback.actionPoints.map((item, idx) => (
-                <li key={idx} className="flex gap-3 text-slate-700">
-                  <span className="text-red-500 font-bold">•</span>
-                  <span className="font-medium">{item}</span>
-                </li>
+                <div key={idx} className="flex gap-4 items-start text-white/90">
+                  <div className="mt-1 flex items-center justify-center w-6 h-6 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xs shrink-0">
+                    {idx + 1}
+                  </div>
+                  <span className="font-medium text-sm leading-relaxed">{item}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </section>
         </div>
 
-        <div className="mt-12 text-center text-slate-400 italic text-sm">
-          <p>“Discipline beats motivation every day.”</p>
-          <p className="mt-2 font-bold text-slate-600">ALL THE BEST ☺</p>
+        <div className="mt-20 pt-10 border-t border-slate-100 text-center">
+          <div className="inline-block p-1 bg-slate-50 rounded-full mb-4">
+             <div className="px-6 py-2 bg-white rounded-full text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] shadow-sm">
+                Generated via AnatomyGuru AI Evaluate v3.1
+             </div>
+          </div>
+          <p className="italic text-slate-500 text-sm">“Discipline beats motivation every day.”</p>
+          <p className="mt-2 font-black text-slate-900 tracking-tighter uppercase">ALL THE BEST ☺</p>
         </div>
       </div>
     </div>
   );
 };
 
-const FeedbackList: React.FC<{ title: string; items: string[] }> = ({ title, items }) => (
-  <section className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-    <h3 className="text-xs uppercase tracking-widest font-black text-red-600 mb-3">{title}</h3>
-    <ul className="space-y-2">
-      {items.map((item, idx) => (
-        <li key={idx} className="flex gap-2 text-slate-700 text-sm">
-          <span className="text-slate-300">•</span>
-          {item}
-        </li>
-      ))}
-    </ul>
-  </section>
-);
+const FeedbackList: React.FC<{ title: string; items: string[]; color: string }> = ({ title, items, color }) => {
+  const colorMap: any = {
+    blue: 'text-blue-600 bg-blue-50 border-blue-100',
+    emerald: 'text-emerald-600 bg-emerald-50 border-emerald-100',
+    indigo: 'text-indigo-600 bg-indigo-50 border-indigo-100',
+    rose: 'text-rose-600 bg-rose-50 border-rose-100'
+  };
+
+  return (
+    <section className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+      <h3 className="text-[10px] uppercase tracking-[0.3em] font-black text-slate-400 mb-5 flex items-center gap-2">
+        <span className={`w-1.5 h-1.5 rounded-full ${colorMap[color].split(' ')[0]}`}></span>
+        {title}
+      </h3>
+      <ul className="space-y-4">
+        {items.map((item, idx) => (
+          <li key={idx} className="flex gap-3 text-slate-700 text-sm group">
+            <span className="text-slate-200 group-hover:text-blue-400 transition-colors">•</span>
+            <span className="font-medium leading-relaxed">{item}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+};
 
 export default FeedbackReport;
