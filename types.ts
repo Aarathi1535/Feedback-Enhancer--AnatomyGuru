@@ -17,6 +17,13 @@ export interface GeneralFeedbackSection {
   actionPoints: string[];
 }
 
+export interface SummationAudit {
+  isCorrect: boolean;
+  manualTotal: number;
+  calculatedTotal: number;
+  discrepancyMessage: string | null;
+}
+
 export interface EvaluationReport {
   studentName: string;
   testTitle: string;
@@ -25,6 +32,7 @@ export interface EvaluationReport {
   maxScore: number;
   questions: QuestionFeedback[];
   generalFeedback: GeneralFeedbackSection;
+  summationAudit: SummationAudit;
 }
 
 export interface FileData {

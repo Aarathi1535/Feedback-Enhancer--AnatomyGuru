@@ -7,6 +7,8 @@ interface FeedbackReportProps {
 }
 
 const FeedbackReport: React.FC<FeedbackReportProps> = ({ report }) => {
+  const audit = report.summationAudit;
+
   return (
     <div className="max-w-4xl mx-auto my-12 bg-white shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-3xl overflow-hidden border border-slate-100 report-container">
       {/* Header */}
@@ -34,9 +36,9 @@ const FeedbackReport: React.FC<FeedbackReportProps> = ({ report }) => {
           </div>
           
           <div className="text-right flex flex-col items-end">
-            <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-1 rounded-2xl shadow-xl mb-6">
+            <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-1 rounded-2xl shadow-xl mb-4">
               <div className="bg-slate-900 px-6 py-4 rounded-[calc(1rem-2px)] text-center min-w-[140px]">
-                <span className="text-[10px] uppercase tracking-[0.3em] font-black block text-blue-400 mb-1">Aggregated Score</span>
+                <span className="text-[10px] uppercase tracking-[0.3em] font-black block text-blue-400 mb-1">Faculty's Stated Total</span>
                 <span className="text-4xl font-black">
                   {report.totalScore}<span className="text-slate-500 text-xl mx-0.5">/</span>{report.maxScore}
                 </span>
@@ -60,7 +62,7 @@ const FeedbackReport: React.FC<FeedbackReportProps> = ({ report }) => {
       {/* Main Table */}
       <div className="p-10">
         <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-6">Detailed Itemized Evaluation</h3>
-        <div className="overflow-hidden rounded-2xl border border-slate-100 mb-10">
+        <div className="overflow-hidden rounded-2xl border border-slate-100 mb-6">
           <table className="w-full text-sm text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 text-slate-500 uppercase text-[10px] font-black tracking-widest border-b border-slate-100">
@@ -80,9 +82,6 @@ const FeedbackReport: React.FC<FeedbackReportProps> = ({ report }) => {
                         <p className={`font-semibold leading-relaxed ${q.isCorrect ? 'text-emerald-800' : 'text-slate-800'}`}>
                           {q.feedback}
                         </p>
-                        {!q.isCorrect && (
-                          <span className="inline-block mt-2 text-[10px] uppercase font-black text-red-500 tracking-wider">Requires Revision</span>
-                        )}
                       </div>
                     </div>
                   </td>
@@ -97,6 +96,44 @@ const FeedbackReport: React.FC<FeedbackReportProps> = ({ report }) => {
           </table>
         </div>
 
+        {/* Summation Audit Section */}
+        <section className={`mb-10 p-6 rounded-2xl border-2 transition-all ${audit.isCorrect ? 'bg-emerald-50 border-emerald-100' : 'bg-amber-50 border-amber-200'}`}>
+           <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-xl ${audit.isCorrect ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white animate-pulse'}`}>
+                  {audit.isCorrect ? (
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  ) : (
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                  )}
+                </div>
+                <div>
+                  <h4 className={`text-[10px] uppercase font-black tracking-[0.2em] ${audit.isCorrect ? 'text-emerald-600' : 'text-amber-600'}`}>Summation Audit & Calculation Check</h4>
+                  <p className={`font-bold text-lg ${audit.isCorrect ? 'text-emerald-900' : 'text-amber-900'}`}>
+                    {audit.isCorrect ? 'Mathematical Validation Passed' : 'Discrepancy Detected in Manual Totalling'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-4 text-center">
+                 <div className="px-4 py-2 bg-white/50 rounded-lg">
+                    <span className="text-[9px] uppercase font-bold text-slate-400 block">Stated</span>
+                    <span className="text-xl font-black text-slate-700">{audit.manualTotal}</span>
+                 </div>
+                 <div className="px-4 py-2 bg-white/50 rounded-lg">
+                    <span className="text-[9px] uppercase font-bold text-slate-400 block">Calculated</span>
+                    <span className="text-xl font-black text-blue-600">{audit.calculatedTotal}</span>
+                 </div>
+              </div>
+           </div>
+           {!audit.isCorrect && (
+             <div className="mt-4 pt-4 border-t border-amber-200">
+               <p className="text-sm text-amber-800 font-medium italic">
+                 Note: Individual question marks sum to {audit.calculatedTotal}, but the faculty has stated a total of {audit.manualTotal}. {audit.discrepancyMessage || 'Please verify the final scorecard.'}
+               </p>
+             </div>
+           )}
+        </section>
+
         {/* Global Competency Metrics */}
         <div className="mt-16">
           <div className="flex items-center gap-4 mb-8">
@@ -105,7 +142,7 @@ const FeedbackReport: React.FC<FeedbackReportProps> = ({ report }) => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            <section className="bg-slate-50/50 p-8 rounded-3xl border border-slate-100 hover:border-blue-100 transition-all">
+            <section className="bg-slate-50/50 p-8 rounded-3xl border border-slate-100">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
@@ -115,7 +152,7 @@ const FeedbackReport: React.FC<FeedbackReportProps> = ({ report }) => {
               <p className="text-slate-700 leading-relaxed font-medium text-lg italic">"{report.generalFeedback.overallPerformance}"</p>
             </section>
 
-            <section className="bg-slate-50/50 p-8 rounded-3xl border border-slate-100 hover:border-blue-100 transition-all">
+            <section className="bg-slate-50/50 p-8 rounded-3xl border border-slate-100">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2 bg-purple-100 rounded-lg text-purple-600">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
@@ -157,7 +194,7 @@ const FeedbackReport: React.FC<FeedbackReportProps> = ({ report }) => {
         <div className="mt-20 pt-10 border-t border-slate-100 text-center">
           <div className="inline-block p-1 bg-slate-50 rounded-full mb-4">
              <div className="px-6 py-2 bg-white rounded-full text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] shadow-sm">
-                Generated via AnatomyGuru AI Evaluate v3.1
+                Generated via AnatomyGuru AI Evaluate v3.5
              </div>
           </div>
           <p className="italic text-slate-500 text-sm">“Discipline beats motivation every day.”</p>
@@ -177,7 +214,7 @@ const FeedbackList: React.FC<{ title: string; items: string[]; color: string }> 
   };
 
   return (
-    <section className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+    <section className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
       <h3 className="text-[10px] uppercase tracking-[0.3em] font-black text-slate-400 mb-5 flex items-center gap-2">
         <span className={`w-1.5 h-1.5 rounded-full ${colorMap[color].split(' ')[0]}`}></span>
         {title}

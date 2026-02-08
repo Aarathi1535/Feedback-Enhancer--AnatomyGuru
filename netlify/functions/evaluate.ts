@@ -2,7 +2,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
 export const handler = async (event: any) => {
-  // Only allow POST requests
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: JSON.stringify({ error: "Method Not Allowed" }) };
   }
@@ -23,14 +22,20 @@ export const handler = async (event: any) => {
       You are a world-class Medical Evaluator for Anatomy Guru. 
       Analyze the provided documents:
       1. Source Document: Contains Question Paper, Answer Key, and Student's Answers.
-      2. Dirty Feedback Document: Contains messy, informal manual feedback.
+      2. Dirty Feedback Document: Contains messy, informal manual feedback from a human evaluator.
 
-      Goal:
-      - Compare student answers with the Answer Key.
-      - Interpret manual notes and align with answers.
-      - Generate a professional structured JSON report.
-      - For EVERY question: 1-2 line feedback. If marks lost, provide improvement strategies.
-      - Ensure scores are mathematically accurate.
+      CORE TASK: 
+      1. Extract individual marks exactly as written.
+      2. Professionalize the feedback text.
+      3. CROSS-CHECK SUMMATION:
+         - Extract the "Manual Total Score" stated by the evaluator.
+         - Calculate your own "Calculated Total" by summing all individual marks.
+         - Compare them. If they differ (e.g., individual marks add to 65 but evaluator wrote 64), record this in summationAudit.
+
+      STRICT COMMANDS:
+      - MARKS: Extract individual marks exactly. Do not "fix" them.
+      - TOTAL SCORE: The main 'totalScore' field should reflect what the faculty wrote.
+      - AUDIT: Use the 'summationAudit' object to highlight if the faculty made a math error.
     `;
 
     const createPart = (data: any, label: string) => {
@@ -53,9 +58,9 @@ export const handler = async (event: any) => {
       contents: [
         {
           parts: [
-            ...createPart(sourceDoc, "Source Document"),
-            ...createPart(dirtyFeedbackDoc, "Evaluator Notes"),
-            { text: "Return the evaluation report in JSON format." }
+            ...createPart(sourceDoc, "Source Document (QP + Key + Answers)"),
+            ...createPart(dirtyFeedbackDoc, "Manual Evaluator Notes"),
+            { text: "Return the professionalized report in JSON format with summation audit details." }
           ]
         }
       ],
@@ -70,6 +75,16 @@ export const handler = async (event: any) => {
             testDate: { type: Type.STRING },
             totalScore: { type: Type.NUMBER },
             maxScore: { type: Type.NUMBER },
+            summationAudit: {
+              type: Type.OBJECT,
+              properties: {
+                isCorrect: { type: Type.BOOLEAN },
+                manualTotal: { type: Type.NUMBER },
+                calculatedTotal: { type: Type.NUMBER },
+                discrepancyMessage: { type: Type.STRING, nullable: true }
+              },
+              required: ["isCorrect", "manualTotal", "calculatedTotal"]
+            },
             questions: {
               type: Type.ARRAY,
               items: {
@@ -98,7 +113,7 @@ export const handler = async (event: any) => {
               required: ["overallPerformance", "mcqs", "contentAccuracy", "completeness", "presentation", "investigations", "actionPoints"]
             }
           },
-          required: ["studentName", "testTitle", "totalScore", "maxScore", "questions", "generalFeedback"]
+          required: ["studentName", "testTitle", "totalScore", "maxScore", "questions", "generalFeedback", "summationAudit"]
         }
       }
     });
